@@ -1,0 +1,11 @@
+<h2>Pending Reviews</h2>
+{% for review in reviews %}
+    <p>{{ review.text }} - {{ review.user }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="review_id" value="{{ review.id }}">
+        <button type="submit">Approve</button>
+    </form>
+{% empty %}
+    No pending reviews.
+{% endfor %}

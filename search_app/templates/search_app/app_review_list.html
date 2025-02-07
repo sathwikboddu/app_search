@@ -1,0 +1,22 @@
+<table>
+    <thead>
+        <tr>
+            <th>App Name</th>
+            <th>Review</th>
+            {% if is_superuser %}
+            <th>Status</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for review in reviews %}
+        <tr>
+            <td>{{ review.app_name }}</td>
+            <td>{{ review.review_text }}</td>
+            {% if is_superuser %}
+            <td>{{ review.status }}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

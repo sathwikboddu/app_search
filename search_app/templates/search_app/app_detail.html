@@ -1,0 +1,18 @@
+<h2>{{ app.name }}</h2>
+<p>Category: {{ app.category }}</p>
+<p>Rating: {{ app.rating }}</p>
+
+<h3>Reviews</h3>
+{% for review in reviews %}
+    <p>{{ review.text }} - {{ review.user }}</p>
+{% empty %}
+    No reviews yet.
+{% endfor %}
+
+{% if user.is_authenticated %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit Review</button>
+    </form>
+{% endif %}
