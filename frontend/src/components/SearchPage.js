@@ -13,6 +13,17 @@ const SearchPage = () => {
   const [user, setUser] = useState(null); // ✅ Store logged-in user info
   const navigate = useNavigate();
 
+  useEffect(() => {
+      const token = localStorage.getItem("authToken"); // ✅ Fetch inside useEffect
+      if (!token) {
+        setTimeout(() => {
+          window.location.href = "/login"; // Delay redirect to ensure localStorage loads
+        }, 200); // 200ms delay to allow token retrieval
+       }
+    }, []);
+
+
+
   // ✅ Fetch user details on component mount
   useEffect(() => {
     axios
@@ -108,6 +119,10 @@ const SearchPage = () => {
                 <th>#</th>
                 <th>ID</th>
                 <th>App Name</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Installs</th>
+
               </tr>
             </thead>
             <tbody>
@@ -115,7 +130,11 @@ const SearchPage = () => {
                 <tr key={app.id} onClick={() => handleSelectApp(app)} className="clickable">
                   <td>{index + 1}</td>
                   <td>{app.id}</td>
-                  <td>{app.app_name}</td>
+                  <td style={{ fontWeight: "bold", color: "blue" }}>{app.app_name}</td>
+                  <td>{app.app_type}</td>
+                  <td>{app.category}</td>
+                  <td>{app.installs}</td>
+
                 </tr>
               ))}
             </tbody>

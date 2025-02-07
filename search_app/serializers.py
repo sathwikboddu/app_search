@@ -4,7 +4,7 @@ from .models import AppDetail, AppReview
 class AppSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppDetail
-        fields = ['id', 'app_name']
+        fields = "__all__"
 
 class ReviewInSerializer(serializers.ModelSerializer):
 
