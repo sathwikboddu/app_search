@@ -73,10 +73,9 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Your React frontend URL
     "http://127.0.0.1:3000",
-    "https://app-search-frontend.onrender.com",
+    "https://app-search.onrender.com",
 ]
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_HEADERS = [
     "content-type",
     "authorization",
@@ -84,7 +83,9 @@ CORS_ALLOW_HEADERS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
+    "http://localhost:3000",  # Your React frontend URL
+    "http://127.0.0.1:3000",
+    "https://app-search.onrender.com",
 ]
 
 ROOT_URLCONF = 'app_search.urls'
