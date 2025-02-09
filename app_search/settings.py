@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-#dzxuu6p!$l(@a^1!n&q-+v71tr3czh0t=ue%q3owy63!!(n!i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['app-search.onrender.com']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -60,6 +60,7 @@ SIMPLE_JWT = {
 }
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Add this
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -87,6 +88,10 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 ROOT_URLCONF = 'app_search.urls'
+
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "frontend", "build", "static")]  # Point to React build files
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")  # Storage for collectstatic
 
 TEMPLATES = [
     {

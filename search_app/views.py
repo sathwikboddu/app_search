@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.serializers import serialize
 from django.db import transaction
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from rapidfuzz import process
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -18,6 +18,10 @@ class ReviewPagination(PageNumberPagination):
     page_size = 10  # Number of reviews per page
     page_size_query_param = 'page_size'
     max_page_size = 100
+
+
+def index(request):
+    return render(request, "index.html")
 
 
 # Custom Login View

@@ -2,9 +2,10 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import search_apps, submit_review, login_user, register_user, user_details, pending_reviews, \
-    logout_user, approve_review, app_details, batch_approve_reviews
+    logout_user, approve_review, app_details, batch_approve_reviews, index
 
 urlpatterns = [
+    path("", index),  # Serve React frontend
     path("login/", login_user, name="api_login"),
     path("register/", register_user, name="api_register"),
     path("user/", user_details),  # ✅ API endpoint for user details
