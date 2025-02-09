@@ -4,5 +4,5 @@ import App from "./App";
 
 const root = createRoot(document.getElementById("root"));
 root.render(
-  <App /> // ❌ Removed <React.StrictMode>
+  <App />
 );
