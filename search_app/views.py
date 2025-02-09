@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.serializers import serialize
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rapidfuzz import process
 from rest_framework import status
@@ -138,6 +139,38 @@ def approve_review(request, review_id):
         {"message": "Review approved" if is_approved else "Review rejected"},
         status=status.HTTP_200_OK,
     )
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAdminUser])
+def batch_approve_reviews(request):
+    review_ids = request.data.get("review_ids", [])
+    is_approved = request.data.get("is_approved", False)
+
+    if not isinstance(review_ids, list) or not review_ids:
+        return Response({"error": "A list of reviews is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    updated_reviews = []
+    deleted_reviews = []
+    not_found = []
+
+    with transaction.atomic():  # ✅ Ensure atomicity
+        if is_approved:
+            # ✅ Approve reviews (bulk update for better performance)
+            updated_count = AppReview.objects.filter(id__in=review_ids).update(is_approved=True)
+            updated_reviews = [{"id": rid, "is_approved": True} for rid in review_ids]
+        else:
+            # ✅ Delete reviews if not approved (bulk delete for efficiency)
+            deleted_count, _ = AppReview.objects.filter(id__in=review_ids).delete()
+            deleted_reviews = review_ids  # Return all deleted review IDs
+
+    response_data = {
+        "updated": updated_reviews if is_approved else [],
+        "deleted": deleted_reviews if not is_approved else [],
+        "not_found": not_found,
+    }
+    return Response(response_data, status=status.HTTP_200_OK)
+
 
 
 @api_view(["POST"])

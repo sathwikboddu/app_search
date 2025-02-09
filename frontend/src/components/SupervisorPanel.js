@@ -4,8 +4,12 @@ import { API_BASE_URL } from "../config";
 
 const SupervisorPanel = () => {
   const [reviews, setReviews] = useState([]);
+  const [selectedReviews, setSelectedReviews] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [nextPage, setNextPage] = useState(null); // Store next page URL from API response
+  const [nextPage, setNextPage] = useState(null);
+  const [selectAll, setSelectAll] = useState(false);
+  const [totalPages, setTotalPages] = useState(0);
+  const [pageSize, setPageSize] = useState(10); // Default page size
 
   useEffect(() => {
     fetchReviews();
@@ -16,24 +20,50 @@ const SupervisorPanel = () => {
       .get(`${API_BASE_URL}/reviews/?is_approved=False&page=${currentPage}`)
       .then((res) => {
         setReviews(res.data.results || []);
-        setNextPage(res.data.next); // Store the next page URL
+        setNextPage(res.data.next);
+        setSelectedReviews([]);
+        setSelectAll(false);
+
+        // Extract count and page size
+        if (res.data.count) {
+          setTotalPages(Math.ceil(res.data.count / 10));
+          setPageSize(10);
+        }
       })
       .catch((err) => console.error("Error fetching reviews:", err));
   };
 
-  const handleStatusUpdate = (reviewId, isApproved) => {
+  const handleSelectReview = (reviewId) => {
+    setSelectedReviews((prev) =>
+      prev.includes(reviewId) ? prev.filter((id) => id !== reviewId) : [...prev, reviewId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedReviews([]);
+    } else {
+      setSelectedReviews(reviews.map((review) => review.id));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  const handleBatchUpdate = (isApproved) => {
+    if (selectedReviews.length === 0) {
+      alert("No reviews selected!");
+      return;
+    }
+
     axios
       .patch(
-        `${API_BASE_URL}/review/approve/${reviewId}/`,
-        { is_approved: isApproved },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
-        }
+        `${API_BASE_URL}/reviews/batch-update/`,
+        { review_ids: selectedReviews, is_approved: isApproved },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` } }
       )
       .then(() => {
-        setReviews(reviews.filter((review) => review.id !== reviewId));
+        fetchReviews(); // ✅ Reload table after approval/rejection
       })
-      .catch((err) => console.error("Error updating review status:", err));
+      .catch((err) => console.error("Error updating reviews:", err));
   };
 
   return (
@@ -43,48 +73,51 @@ const SupervisorPanel = () => {
       {reviews.length === 0 ? (
         <p>No pending reviews.</p>
       ) : (
-        <table className="review-table">
-          <thead>
-            <tr>
-              <th>App Name</th>
-              <th>Review Text</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reviews.map((review) => (
-              <tr key={review.id}>
-                <td>{review.app_name}</td>
-                <td>{review.review_text}</td>
-                <td>
-                  <button
-                    className="approve-button"
-                    onClick={() => handleStatusUpdate(review.id, true)} // Approve (true)
-                  >
-                    Approve
-                  </button>
-                  <button
-                    className="reject-button"
-                    onClick={() => handleStatusUpdate(review.id, false)} // Reject (false)
-                  >
-                    Reject
-                  </button>
-                </td>
+        <>
+          <div className="batch-actions">
+            <button className="approve-button" onClick={() => handleBatchUpdate(true)}>
+              Approve Selected
+            </button>
+            <button className="reject-button" onClick={() => handleBatchUpdate(false)}>
+              Reject Selected
+            </button>
+          </div>
+
+          <table className="review-table">
+            <thead>
+              <tr>
+                <th>
+                  <input type="checkbox" checked={selectAll} onChange={handleSelectAll} />
+                </th>
+                <th>App Name</th>
+                <th>Review Text</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {reviews.map((review) => (
+                <tr key={review.id}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedReviews.includes(review.id)}
+                      onChange={() => handleSelectReview(review.id)}
+                    />
+                  </td>
+                  <td>{review.app_name}</td>
+                  <td>{review.review_text}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
       )}
 
       <div className="pagination">
         <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
           Previous
         </button>
-        <span>Page {currentPage}</span>
-        <button
-          onClick={() => setCurrentPage(currentPage + 1)}
-          disabled={!nextPage} // Disable Next button if there's no next page
-        >
+        <span>Page {currentPage} of {totalPages}</span>
+        <button onClick={() => setCurrentPage(currentPage + 1)} disabled={!nextPage}>
           Next
         </button>
       </div>
@@ -95,21 +128,23 @@ const SupervisorPanel = () => {
           padding: 20px;
         }
 
+        .batch-actions {
+          margin-bottom: 10px;
+        }
+
         .review-table {
           width: 100%;
           border-collapse: collapse;
           margin-bottom: 20px;
         }
 
-        .review-table th,
-        .review-table td {
+        .review-table th, .review-table td {
           padding: 12px;
           border: 1px solid #ddd;
           text-align: left;
         }
 
-        .approve-button,
-        .reject-button {
+        .approve-button, .reject-button {
           padding: 8px 12px;
           font-size: 14px;
           margin: 0 5px;
@@ -123,17 +158,9 @@ const SupervisorPanel = () => {
           color: white;
         }
 
-        .approve-button:hover {
-          background-color: #218838;
-        }
-
         .reject-button {
           background-color: #dc3545;
           color: white;
-        }
-
-        .reject-button:hover {
-          background-color: #c82333;
         }
 
         .pagination {

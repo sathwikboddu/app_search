@@ -23,20 +23,21 @@ def load_apps(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            AppDetail.objects.create(
-                app_name=row['App'],
-                category=row['Category'],
-                rating=row['Rating'],
-                reviews_count=row['Reviews'],
-                size=row['Size'],
-                installs=row['Installs'],
-                app_type=row['Type'],
-                price=row['Price'],
-                content_rating=row['Content Rating'],
-                genres=row['Genres'],
-                current_version=row['Current Ver'],
-                android_version=row['Android Ver']
-            )
+            if not AppDetail.objects.filter(app_name=row['App']).first():
+                AppDetail.objects.create(
+                    app_name=row['App'],
+                    category=row['Category'],
+                    rating=row['Rating'] if row['Rating'] != 'Nan' else None ,
+                    reviews_count=row['Reviews'],
+                    size=row['Size'],
+                    installs=row['Installs'],
+                    app_type=row['Type'],
+                    price=row['Price'],
+                    content_rating=row['Content Rating'],
+                    genres=row['Genres'],
+                    current_version=row['Current Ver'],
+                    android_version=row['Android Ver']
+                )
     print("Apps data loaded successfully.")
 
 # Load reviews from googleplaystore_user_reviews.csv

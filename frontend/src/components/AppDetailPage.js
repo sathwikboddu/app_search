@@ -38,7 +38,7 @@ const AppDetailPage = () => {
       const reviewData = {
         app: parseInt(appId),
         review_text: newReview,
-        user: user?.id,
+        user: 1,
       };
 
       const response = await axios.post(`${API_BASE_URL}/review/submit/`, reviewData, {
