@@ -3,7 +3,8 @@
 import axios from 'axios';
 
 // Set the base URL for your API
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://app-search.onrender.com/api";
+
 console.log("API BASE URL:", API_BASE_URL, process.env.REACT_APP_API_BASE_URL);
 
 // Set the default headers for all axios requests
