@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.contrib import admin
 from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
@@ -27,8 +27,8 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("api/", include("search_app.urls")),
-    path("", TemplateView.as_view(template_name="index.html"), name="home"),  # Serve React app
-    ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
+]
 
 # urlpatterns = [
 #     path('admin/', admin.site.urls),
