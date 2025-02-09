@@ -20,7 +20,7 @@ class ReviewPagination(PageNumberPagination):
     max_page_size = 100
 
 
-def index(request):
+def serve_react_app(request):
     return render(request, "index.html")
 
 

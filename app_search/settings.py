@@ -90,7 +90,7 @@ CSRF_TRUSTED_ORIGINS = [
 ROOT_URLCONF = 'app_search.urls'
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "frontend", "build", "static")]  # Point to React build files
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'search_app/templates/static')]  # Point to React build files
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")  # Storage for collectstatic
 
 TEMPLATES = [
