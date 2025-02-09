@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-#dzxuu6p!$l(@a^1!n&q-+v71tr3czh0t=ue%q3owy63!!(n!i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['app-search.onrender.com']
 
 
 # Application definition
@@ -72,6 +72,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Your React frontend URL
     "http://127.0.0.1:3000",
+    "https://app-search-frontend.onrender.com",
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
