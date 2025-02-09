@@ -26,7 +26,7 @@ This is a **Full-Stack Django + React** web application that allows users to sea
 ### 1️⃣ Clone the Repository
 ```bash
  git clone <your-repo-url>
- cd app-review-system
+ cd app_search
 ```
 
 ### 2️⃣ Backend Setup (Django)
@@ -39,7 +39,7 @@ source .venv/bin/activate  # (Linux/macOS)
 
 #### Install Dependencies
 ```bash
-pip install -r backend/requirements.txt
+pip install -r requirements.txt
 ```
 
 #### Apply Migrations & Run Server
