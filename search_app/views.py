@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 from django.core.serializers import serialize
 from django.db import transaction
 from django.shortcuts import get_object_or_404, render
@@ -103,16 +104,22 @@ def search_apps(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def pending_reviews(request):
-    app_id = request.GET.get("app_id", "").strip()
     is_approved = request.GET.get("is_approved", "").strip()
     query = AppReview.objects.select_related('app')
-    if app_id:
-        reviews = query.filter(app_id=app_id, is_approved=is_approved).order_by('-created_at')
-    elif request.user.is_superuser:
+
+    if request.user.is_superuser:
         reviews = query.filter(is_approved=is_approved).order_by('-created_at')
-    paginator = ReviewPagination()
-    result_page = paginator.paginate_queryset(reviews, request)
-    return paginator.get_paginated_response(ReviewOutSerializer(result_page, many=True).data)
+
+    # Manual pagination
+    paginator = Paginator(reviews, 10)  # Load 10 reviews per request
+    page_number = request.GET.get("page", 1)
+    page_obj = paginator.get_page(page_number)
+
+    return Response({
+        "results": ReviewOutSerializer(page_obj, many=True).data,
+        "next": page_obj.has_next(),
+    })
+
 
 @api_view(["POST"])
 def submit_review(request):
