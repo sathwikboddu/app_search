@@ -28,7 +28,7 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include("search_app.urls")),
-    re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
+    # re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
 ]
 
 # urlpatterns = [
