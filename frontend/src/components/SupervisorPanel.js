@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import { API_BASE_URL } from "../config";
 
@@ -6,10 +6,9 @@ const SupervisorPanel = () => {
   const [reviews, setReviews] = useState([]);
   const [selectedReviews, setSelectedReviews] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [nextPage, setNextPage] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
   const [selectAll, setSelectAll] = useState(false);
-  const [totalPages, setTotalPages] = useState(0);
-  const [pageSize, setPageSize] = useState(10); // Default page size
+  const observer = useRef();
 
   useEffect(() => {
     fetchReviews();
@@ -19,19 +18,24 @@ const SupervisorPanel = () => {
     axios
       .get(`${API_BASE_URL}/reviews/?is_approved=False&page=${currentPage}`)
       .then((res) => {
-        setReviews(res.data.results || []);
-        setNextPage(res.data.next);
-        setSelectedReviews([]);
-        setSelectAll(false);
-
-        // Extract count and page size
-        if (res.data.count) {
-          setTotalPages(Math.ceil(res.data.count / 10));
-          setPageSize(10);
-        }
+        setReviews((prev) => [...prev, ...res.data.results]);
+        setHasMore(!!res.data.next);
       })
       .catch((err) => console.error("Error fetching reviews:", err));
   };
+
+  const lastReviewRef = useCallback(
+    (node) => {
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setCurrentPage((prevPage) => prevPage + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [hasMore]
+  );
 
   const handleSelectReview = (reviewId) => {
     setSelectedReviews((prev) =>
@@ -61,7 +65,8 @@ const SupervisorPanel = () => {
         { headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` } }
       )
       .then(() => {
-        fetchReviews(); // ✅ Reload table after approval/rejection
+        setReviews(reviews.filter((review) => !selectedReviews.includes(review.id)));
+        setSelectedReviews([]);
       })
       .catch((err) => console.error("Error updating reviews:", err));
   };
@@ -94,8 +99,8 @@ const SupervisorPanel = () => {
               </tr>
             </thead>
             <tbody>
-              {reviews.map((review) => (
-                <tr key={review.id}>
+              {reviews.map((review, index) => (
+                <tr key={review.id} ref={index === reviews.length - 1 ? lastReviewRef : null}>
                   <td>
                     <input
                       type="checkbox"
@@ -112,15 +117,7 @@ const SupervisorPanel = () => {
         </>
       )}
 
-      <div className="pagination">
-        <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
-          Previous
-        </button>
-        <span>Page {currentPage} of {totalPages}</span>
-        <button onClick={() => setCurrentPage(currentPage + 1)} disabled={!nextPage}>
-          Next
-        </button>
-      </div>
+      {hasMore && <p className="loading-text">Loading more reviews...</p>}
 
       <style jsx>{`
         .supervisor-panel {
@@ -163,23 +160,10 @@ const SupervisorPanel = () => {
           color: white;
         }
 
-        .pagination {
-          margin-top: 20px;
+        .loading-text {
           text-align: center;
-        }
-
-        .pagination button {
-          padding: 10px 20px;
-          font-size: 16px;
-          cursor: pointer;
-          margin: 0 10px;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-        }
-
-        .pagination button:disabled {
-          cursor: not-allowed;
-          background-color: #e0e0e0;
+          font-size: 14px;
+          color: #666;
         }
       `}</style>
     </div>
