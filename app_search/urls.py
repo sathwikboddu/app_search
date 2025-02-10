@@ -29,7 +29,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include("search_app.urls")),
     re_path(r"^.*$", TemplateView.as_view(template_name="index.html")),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # urlpatterns = [
 #     path('admin/', admin.site.urls),
