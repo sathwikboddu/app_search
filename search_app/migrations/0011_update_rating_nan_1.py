@@ -7,7 +7,7 @@ def update_rating(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('search_app', '0009_create_superuser'),  # Update with the last migration filename
+        ('search_app', '0010_update_rating_nan'),  # Update with the last migration filename
     ]
 
     operations = [
